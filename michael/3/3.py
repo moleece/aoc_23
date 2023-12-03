@@ -43,6 +43,22 @@ def checkNum(adj, num, ni, nj):
             if adj[i][j].isalnum() or adj[i][j] == '.':
                 continue
             return True
+        
+# P2
+gears = {}
+def checkNum_P2(adj, num, ni, nj):
+    width = math.ceil(math.log10(num+0.1))
+    for i in range(ni-1, ni + 2):
+        for j in range(nj-1, nj + width + 1):
+            if i < 0 or i >= len(adj):
+                continue
+            if j < 0 or j >= len(adj[i]):
+                continue
+            if adj[i][j] == '*':
+                if (i,j) in gears:
+                    gears[(i,j)] += [num]
+                else:
+                    gears[(i,j)] = [num]
 
 if __name__ == '__main__':
     with open(sys.argv[1], 'r') as f:
@@ -58,8 +74,10 @@ if __name__ == '__main__':
                 while j < len(adj[i]) and adj[i][j].isdigit():
                     part = part*10 + int(adj[i][j])
                     j += 1
-                if checkNum(adj, part, i, j-math.ceil(math.log10(part+0.1))):
-                    total += part
+                checkNum_P2(adj, part, i, j-math.ceil(math.log10(part+0.1)))
             else:
                 j += 1
+    for (i,j) in gears:
+        if len(gears[(i,j)]) == 2:
+            total += math.prod(gears[(i,j)])
     print(total)
