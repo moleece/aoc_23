@@ -20,6 +20,7 @@ def loadInput(fname):
     maps += [curMap]
     return (seeds, maps)
 
+# Part 1
 def traceSeed(seed, maps):
     curIndex = seed
     for map in maps:
@@ -29,7 +30,9 @@ def traceSeed(seed, maps):
                 break
     return curIndex
 
+# Part 2
 def preprocess_maps(maps):
+    # Fill in gaps with identity matching in case there's gaps.
     newMaps = []
     for mapping in maps:
         m = sorted(mapping, key=lambda x: x[1])
