@@ -39,6 +39,7 @@ if __name__ == "__main__":
         sequence = [int(x) for x in sequence]
         sequences.append(sequence)
 
+    '''
     new_history_values = []
 
     for sequence in sequences:
@@ -52,5 +53,20 @@ if __name__ == "__main__":
         new_history_values.append(tree[0][-1])
 
     print(sum(new_history_values))
+    '''
 
+    backpropagation_values = []
+    for sequence in sequences:
+        tree = build_tree(sequence)
+        for line in tree:
+            line.reverse()
+
+        tree[-1].append(0)
+
+        for i in range(-2, -len(tree)-1, -1):
+            tree[i].append(tree[i][-1] - tree[i+1][-1])
+
+        backpropagation_values.append(tree[0][-1])
+
+    print(sum(backpropagation_values))
 
