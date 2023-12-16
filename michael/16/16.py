@@ -9,10 +9,9 @@ class Cell:
     
     def receiveLightFromDir(self, dir):
         # Returns output dirs
-        newDirs = list(filter(lambda x: x not in self.lightDirs, dirCharMap[self.char][dir]))
-        for d in newDirs:
-            self.lightDirs.add(d)
-        return newDirs
+        newDirs = set(dirCharMap[self.char][dir]).difference(self.lightDirs)
+        self.lightDirs = self.lightDirs.union(newDirs)
+        return list(newDirs)
 
 
 def makeGrid(lines):
@@ -55,17 +54,10 @@ dirPosChange = {'n':(-1,0),
           'e':(0,1)}
 
 # P2
-def energizeCount(x, dir, lines):
+def energizeCount(i, j, dir, lines):
     grid = makeGrid(lines)
 
-    if dir == 'e':
-        stepsToTake = [(x, 0, dir)]
-    elif dir == 'w':
-        stepsToTake = [(x, len(lines[0])-1, dir)]
-    elif dir == 's':
-        stepsToTake = [(0, x, dir)]
-    elif dir == 'n':
-        stepsToTake = [(len(lines)-1, x, dir)]
+    stepsToTake = [(i,j,dir)]
 
     while len(stepsToTake) > 0:
         # visGrid(grid)
@@ -91,10 +83,10 @@ if __name__ == '__main__':
     
     best = 0
     for i in range(len(lines)):
-        best = max(best, energizeCount(i, 'e', lines))
-        best = max(best, energizeCount(i, 'w', lines))
-    for i in range(len(lines[0])):
-        best = max(best, energizeCount(i, 'n', lines))
-        best = max(best, energizeCount(i, 's', lines))
+        best = max(best, energizeCount(i, 0, 'e', lines))
+        best = max(best, energizeCount(i, len(lines[0])-1, 'w', lines))
+    for j in range(len(lines[0])):
+        best = max(best, energizeCount(len(lines)-1, j, 'n', lines))
+        best = max(best, energizeCount(0, j , 's', lines))
     print(best)
     
