@@ -1,4 +1,4 @@
-import sys, operator
+import sys, operator, math
 from copy import deepcopy
 
 # P1
@@ -76,98 +76,78 @@ class Part:
 
 # P2
 class Node:
-    def __init__(self, attr, function, comparator, target, workflowName, number, rangesToReach):
-        self.name = workflowName + '.' + str(number)
-        if workflowName != 'A' and workflowName != 'R':
-            self.attr = attr
-            self.function = function
-            self.comparator = comparator
-            self.leftChild = target + '.0'
-            self.rightChild = workflowName + '.' + str(number+1)
-        self.rangesToReach = rangesToReach # {'a': (min, max)}
-    
-    def countChildren(self, side):
-        newRanges = self.rangesToReach
-        if (self.function == operator.gt and side == 'left' or
-            self.function == operator.lt and side == 'right'):
-            newRanges[self.attr][0] = max(newRanges[self.attr][0], self.comparator+1)
-        else:
-            newRanges[self.attr][1] = min(newRanges[self.attr][1], self.comparator-1)
-        accum = 1
-        for r in newRanges:
-            if newRanges[r][1] < newRanges[r][0]:
-                return 0
-            accum *= newRanges[r][1] - newRanges[r][0] + 1
-        return accum
-    
+    def __init__(self, attr, function, comparator, leftChild, rightChild):
+        self.name = ''
+        self.attr = attr
+        self.function = function
+        self.comparator = comparator
+        self.leftChild = leftChild
+        self.rightChild = rightChild
 
-    def applyConstraint(self, attr, function, comparator, side):
-        if (function == operator.gt and side == 'left' or
-            function == operator.lt and side == 'right'):
-            self.rangesToReach[attr][0] = max(self.rangesToReach[attr][0], comparator+1)
+    def getRange(self):
+        if self.function == operator.lt:
+            return (self.attr, 1, self.comparator-1)
         else:
-            self.rangesToReach[attr][1] = min(self.rangesToReach[attr][1], comparator-1)
-
+            return (self.attr, self.comparator+1, 4000)
     
+    def getInvertedRange(self):
+        if self.function == operator.lt:
+            return (self.attr, self.comparator, 4000)
+        else:
+            return (self.attr, 1, self.comparator)
+
+
+def buildSubtree(workflows, workflowName, stepIndex):
+    if workflowName in ['A', 'R']:
+        return Node(workflowName, None, None, None, None)
+    
+    w = workflows[workflowName]
+    
+    if stepIndex == len(w.rules):
+        return buildSubtree(workflows, w.fallback, 0)
+    
+    rule = w.rules[stepIndex]
+    leftChild = buildSubtree(workflows, rule.dest, 0)
+    rightChild = buildSubtree(workflows, workflowName, stepIndex+1)
+    n = Node(rule.attr, rule.f, rule.v, leftChild, rightChild)
+    n.name = workflowName + '.' + str(stepIndex)
+    return n
+
+def countAccepts(treeNode, constraints):
+    if treeNode.leftChild == None and treeNode.rightChild == None:
+        if treeNode.attr == 'A':
+            return countPossibilities(constraints)
+        else:
+            return 0
+    
+    return (countAccepts(treeNode.leftChild, constraints + [treeNode.getRange()]) + 
+            countAccepts(treeNode.rightChild, constraints + [treeNode.getInvertedRange()]))
+
+def countPossibilities(constraints):
+    ranges = {'x':[1,4000], 'm':[1,4000], 'a':[1,4000], 's':[1,4000]}
+    for (attr, minVal, maxVal) in constraints:
+        ranges[attr][0] = max(minVal, ranges[attr][0])
+        ranges[attr][1] = min(maxVal, ranges[attr][1])
+    rangeLens = [ranges[x][1] - ranges[x][0] + 1 for x in ranges]
+    if min(rangeLens) <= 0:
+        return 0
+    return math.prod(rangeLens)
 
 if __name__ == '__main__':
-    with open('michael/19/ex') as f:
+    with open('michael/19/data') as f:
     # with open(sys.argv[1]) as f:
         lines = [line.strip() for line in f.readlines()]
     
-    nodes = {'A.0': 'A', 'R.0': 'R'}
+    workflows = {}
     i = 0
     while lines[i] != '':
         w = Workflow(lines[i])
-        for j in range(len(w.rules)):
-            rule = w.rules[j]
-            n = Node(rule.attr, rule.f, rule.v, rule.dest, w.name, j, {'x':[0,4000], 'm':[0,4000], 'a':([0,4000]), 's':([0,4000])})
-            nodes[n.name] = n
-        fallbackNode = Node('a', operator.gt, -1, w.fallback, w.name, j+1, {'x':([0,4000]), 'm':([0,4000]), 'a':([0,4000]), 's':([0,4000])})
-        nodes[fallbackNode.name] = fallbackNode
+        workflows[w.name] = w
         i += 1
-    print(nodes)
-    
-    for node in nodes:
-        if node == 'A.0' or node == 'R.0':
-            continue
-        print(node, nodes[node].leftChild, nodes[node].rightChild)
-        nodes[node].leftChild = nodes[nodes[node].leftChild]
-        try:
-            nodes[node].rightChild = nodes[nodes[node].rightChild]
-        except:
-            continue
-    
-    toUpdate = ['in.0']
-    total = 0
-    while len(toUpdate) > 0:
-        nextUpdate = toUpdate.pop()
-        node = nodes[nextUpdate]
-        if node.leftChild == 'A':
-            total += node.countChildren('left')
-        elif node.leftChild != 'R':
-            try:
-                for a in node.rangesToReach:
-                    node.leftChild.rangesToReach[a] = deepcopy(node.rangesToReach[a])
-                node.leftChild.applyConstraint(node.attr, node.function, node.comparator, 'left')
-                toUpdate += [node.leftChild.name]
-            except:
-                continue
-        if node.rightChild == 'A.0':
-            total += node.countChildren('right')
-        elif node.rightChild != 'R.0':
-            try:
-                for a in node.rangesToReach:
-                    node.rightChild.rangesToReach[a] = deepcopy(node.rangesToReach[a])
-                node.rightChild.applyConstraint(node.attr, node.function, node.comparator, 'right')
-                toUpdate += [node.rightChild.name]
-            except:
-                continue
 
-    for n in nodes:
-        try:
-            print(n, nodes[n].rangesToReach)
-        except:
-            print(n)
+    i = 0
+    tree = buildSubtree(workflows, 'in', 0)
     
-    print(total)
+    # Traverse the tree
+    print(countAccepts(tree, []))
+    
