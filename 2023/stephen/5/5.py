@@ -69,12 +69,6 @@ def extract(lines):
 
 
 def sort_maps(raw_maps): # (source start, source end, offset)
-    '''
-    sort then convert raw maps input from:
-    [['50', '98', '2'], ['52', '50', '48']]
-    to:
-    [[0, 49, 0], [50, 97, 2], [98, 99, -48]]
-    '''
     converted_data = [[[int(value) for value in inner_list] for inner_list in outer_list] for outer_list in raw_maps]
     sorted_maps = [sorted(outer_list, key=lambda x: x[1]) for outer_list in converted_data]
     '''
@@ -91,63 +85,73 @@ def sort_maps(raw_maps): # (source start, source end, offset)
     return sorted_maps
 
 
-def find_destination(source_value, sorted_range):
-    for index in range(len(sorted_range)):
-        _range = sorted_range[index]
+def process_map(sorted_map):
+    offset_ranges = []
+    offset_range_offsets = []
 
-        range_offset = _range[0] - _range[1]
+    for j in range(len(sorted_map)):
+        offset_ranges.append([sorted_map[j][1], sorted_map[j][1] + sorted_map[j][2]-1])
+        offset_range_offsets.append(sorted_map[j][0] - sorted_map[j][1])
 
-        # handle ranges
-        if source_value < _range[1]:
-            destination_value = source_value
-            # print(destination_value)
-            break
-        elif source_value >= _range[1] and source_value < (_range[1] + _range[2]):
-            destination_value = source_value + range_offset
-            # print(destination_value)
-            break
-        # checks based on next _range start
-        elif index < len(sorted_range)-1:
-            if source_value >= (_range[1] + _range[2]) and source_value < sorted_range[index+1][1]:
-                destination_value = source_value
-                # print(destination_value)
-                break
-        elif index == len(sorted_range)-1:
-            if source_value >= (_range[1] + _range[2]): 
-                destination_value = source_value
-                # print(destination_value)
-                break
-            elif source_value >= _range[1] and source_value < (_range[1] + _range[2]):
-                destination_value = source_value + range_offset
-                # print(destination_value)
-                break
+    return offset_ranges, offset_range_offsets
+
+def process_maps(sorted_maps):
+    all_offset_ranges = []
+    all_offset_range_offsets = []
+
+    for i in range(len(sorted_maps)):
+        offset_range, offset_range_offsets = process_map(sorted_maps[i])
+
+        all_offset_ranges.append(offset_range)
+        all_offset_range_offsets.append(offset_range_offsets)
+
+    return all_offset_ranges, all_offset_range_offsets
+
+
+def map_to_destination(source_value, offset_ranges, offset_range_offsets):
+    # iterate over ranges within map
+    for i in range(len(offset_ranges)):
+        # early returns are not correct
+        if source_value < offset_ranges[0][0]:
+            return source_value
+
+        if source_value > offset_ranges[-1][-1]:
+            return source_value
+
+        if source_value >= offset_ranges[i][0] and source_value <= offset_ranges[i][1]:
+            return source_value + offset_range_offsets[i]
+
+        if source_value < offset_ranges[i][0]:
+            return source_value
     
-    return destination_value
+    return source_value
 
 
-def find_final_destination(seed, sorted_maps):
-    num_maps = len(sorted_maps)
-    location = seed
+def map_to_final_destination(source_value, all_offset_ranges, all_offset_range_offsets):
+    '''
+    for each set of offset ranges, find which range the source fits in
+        if between ranges, offset = 0
+        if within a range, offset = offset range offset
+    if final source location < current min location, update min location
+    '''
+    value = source_value
+    # iterate over all maps 
+    for i in range(len(all_offset_ranges)):
+        offset_range = all_offset_ranges[i]
+        offset_range_offsets = all_offset_range_offsets[i]
 
-    i = 0
-    while i < num_maps:
-        # print(location)
-        location = find_destination(location, sorted_maps[i])
-        i += 1
-    
-    return location
+        value = map_to_destination(value, offset_range, offset_range_offsets)
+
+    return value
 
 
 
-    
-
-
-#map_sources_to_destinations # given input source values, return associated destination values
 
 
 if __name__ == "__main__":
     seeds, raw_maps = extract(lines) # ['79', '14', '55', '13']
     seeds = [int(seed) for seed in seeds]
+    seeds_count = len(seeds)
     sorted_maps = sort_maps(raw_maps)
     destinations = []
 
@@ -159,24 +163,14 @@ if __name__ == "__main__":
     print(f"min final destination: {min(destinations)}")
     '''
 
-
     # part 2
-    seed_ranges = []
-    for j in range(0, len(seeds), 2):
-        seed_ranges.append([seeds[j]])
+    current_min_location = 10000000000
+    all_offset_ranges, all_offset_range_offsets = process_maps(sorted_maps)
 
+    for i in range(0, len(seeds), 2):
+        for j in range(0, seeds[i+1], 1):
+            destination = map_to_final_destination( seeds[i]+j, all_offset_ranges, all_offset_range_offsets)
+            if destination < current_min_location:
+                current_min_location = destination
 
-    for k in range(1, len(seeds), 2):
-        for l in range(1, seeds[k], 1):
-            seed_num = seeds[k - 1] + l 
-            seed_ranges[int(k/2)].append(seed_num)
-    
-    all_seeds = [item for sublist in seed_ranges for item in sublist]
-
-    for seed in all_seeds:
-        destinations.append(find_final_destination(seed, sorted_maps))
-
-    print(f"min final destination: {min(destinations)}")
-
-
-
+    print(current_min_location)

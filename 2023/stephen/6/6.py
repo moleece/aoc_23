@@ -88,8 +88,3 @@ if __name__ == "__main__":
 
     margins_product = math.prod(margin_counts)
     print(margins_product)
-
-    
-
-
-

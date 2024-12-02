@@ -29,7 +29,7 @@ tile_previous_heading_map = {
 }
 
 
-def explore_initial_direction(s_position, direction):
+def explore_initial_direction(s_position, direction, traversed_tiles):
     '''
     traverse a potential path
     if s_position is reached, loop found
@@ -46,9 +46,11 @@ def explore_initial_direction(s_position, direction):
     is_loop = False
 
     # take one step before entering while loop
+    traversed_tiles[position[0]].append(position[1])
     position, direction, distance, travelling = travel(position, direction, distance)
 
     while travelling and position != s_position:
+        traversed_tiles[position[0]].append(position[1])
         position, direction, distance, travelling = travel(position, direction, distance)
         if direction == 'loop':
             is_loop = True
@@ -113,11 +115,36 @@ def check_position_and_heading(position, previous_direction):
         print('S tile reached!!!')
         return traversable, 'loop'
     else:
-        print(f"position tile: {position_tile}, previous_direction: {previous_direction}")
-        print(tile_previous_heading_map[position_tile])
+        # print(f"position tile: {position_tile}, previous_direction: {previous_direction}")
+        # print(tile_previous_heading_map[position_tile])
         new_heading = tile_previous_heading_map[position_tile][previous_direction]
 
     return traversable, new_heading
+
+
+def count_enclosed_in_row(indexes_traversed, y, grid):
+    vertical_component_pipes = ['L', '|', 'F', '7', 'J', 'S'] # S by inspection, not generalized
+    counting = False
+    total = 0
+    
+    for n in range(len(indexes_traversed)-1):
+        for i in range(indexes_traversed[n], indexes_traversed[n+1]+1):
+            tile_value = grid[y][i]
+
+            if i in indexes_traversed and tile_value in vertical_component_pipes:
+                counting = not counting
+                continue
+
+            if i in indexes_traversed and tile_value not in vertical_component_pipes:
+                continue
+
+            if not counting:
+                continue
+            
+            total += 1
+    # print(f"count for row {i}: {total}")
+
+    return total
 
 
 if __name__ == "__main__":
@@ -127,6 +154,21 @@ if __name__ == "__main__":
 
     s_position = []
 
+    '''
+    keep a hash of grid row to positions traversed and pipe type
+    iterate over grid
+        iterate over positions between the first position and last position traversed by loop
+            - add positions to total when the number of counted pipes is odd (start with at count = 1)
+            - don't add horizontal pipes to total and also don't count them as switches 
+              (only switch on pipes with vertical component that were traversed)
+
+    '''
+    # for part 2
+    traversed_tiles = [] # list (y's) of hashes (x of pipe traversed to pipe type)
+    for i in range(grid_height):
+        traversed_tiles.append([])
+
+    # find S position
     for i in range(len(grid)):
         if grid[i].find('S') != -1:
             s_position.append(i)
@@ -135,8 +177,26 @@ if __name__ == "__main__":
     # part 1, initial direction determined by inspection
     initial_direction = 'south'
 
-    distance, is_loop = explore_initial_direction(s_position, initial_direction)
+    distance, is_loop = explore_initial_direction(s_position, initial_direction, traversed_tiles)
 
     half_distance = math.ceil(distance/2)
     print(f"DONE half distance: {half_distance}, is_loop: {is_loop}")
+
+
+    # part 2
+    total_enclosed = 0
+
+    for i in range(grid_height):
+        traversed_tiles[i].sort()
+
+    print(traversed_tiles)
+
+    for i in range(grid_height):
+        if len(traversed_tiles[i]) == 0:
+            continue
+
+        total_enclosed += count_enclosed_in_row(traversed_tiles[i], i, grid)
+
+    print(f"total_enclosed: {total_enclosed}")
+
 
