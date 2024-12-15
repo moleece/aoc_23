@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "args": [
+                "${input:myInput}"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "myInput",
+            "type": "promptString",
+            "description": "Enter the argument for the Python script",
+            "default": ""
+        }
+    ]
+}
