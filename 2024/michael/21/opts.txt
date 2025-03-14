@@ -1,8 +1,31 @@
+528A
+70
+<^^AvA^^Avvv>A
+v<<A>^AA>A<vA^>A<AA>Av<AAA>A^A
+v<A<AA>>^AvA<^A>AAvA^Av<<A>A>^A<A>vA^Av<<A>>^AAvA^Av<A<A>>^AAAvA^A<A>A
+
+528A - 74
+<^^AvA^^A>vvvA
+v<<A>^AA>A<vA>^A<AA>AvA<AAA>^A
+<vA<AA>>^AvA<^A>AAvA^Av<<A>A>^AvA<^A>Av<<A>>^AAvA^A<vA>^Av<<A>>^AAAvA<^A>A
+
+
+
+
+
 586A
 68
 <^^A^Av>AvvA
 v<<A>^AA>A<A>Av<A>A^Av<AA>^A
 <vA<AA>>^AvA<^A>AAvA^Av<<A>>^AvA^A<vA<A>>^AvA^A<A>Av<A<A>>^AAvA^<A>A
+
+586A - 72
+<^^A^A>vAvvA
+v<<A>^AA>A<A>AvA<A>^A<vAA>^A
+<vA<AA>>^AvA<^A>AAvA^Av<<A>>^AvA^A<vA>^Av<<A>>^AvA<^A>Av<<A>A>^AAvA<^A>A
+
+
+
 
 341A
 72
@@ -10,25 +33,19 @@ v<<A>^AA>A<A>Av<A>A^Av<AA>^A
 <A>Av<<AA>^A>Av<A>^AvAA<A^>A
 v<<A>>^AvA^Av<A<AA>>^AAvA^<A>AvA^Av<A<A>>^AvA^<A>A<vA^>AAv<<A>>^A<Av>A^A
 
+^A<<^AvA>>vA
+<A>Av<<AA>^A>A<vA>^AvAA<A>^A
+v<<A>>^AvA^A<vA<AA>>^AAvA<^A>AvA^Av<<A>A>^AvA<^A>A<vA>^AAv<<A>>^AvA<^A>A
+
+
+
+
 319A
 70
 ^A<<A>>^^AvvvA
 <A>Av<<AA>>^AvAA^<AA>A<vAAA^>A
 v<<A>>^AvA^Av<A<AA>>^AAvAA^<A>A<vA^>AA<Av<A>>^AAvA^Av<<A>A>^AAA<Av>A^A
 
-
-
-528A - 74
-<^^A^A>vAvvA
-v<<A>^AA>A<A>AvA<A>^A<vAA>^A
-<vA<AA>>^AvA<^A>AAvA^Av<<A>>^AvA^A<vA>^Av<<A>>^AvA<^A>Av<<A>A>^AAvA<^A>A
-
-586A - 72
-^A<<^AvA>>vA
-<A>Av<<AA>^A>A<vA>^AvAA<A>^A
-v<<A>>^AvA^A<vA<AA>>^AAvA<^A>AvA^Av<<A>A>^AvA<^A>A<vA>^AAv<<A>>^AvA<^A>A
-
-341A - 72
 ^A<<A>>^^AvvvA
 <A>Av<<AA>>^AvAA<^AA>A<vAAA>^A
 v<<A>>^AvA^A<vA<AA>>^AAvAA<^A>A<vA>^AAv<<A>^A>AAvA^Av<<A>A>^AAAvA<^A>A
